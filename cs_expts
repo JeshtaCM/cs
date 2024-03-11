@@ -256,7 +256,10 @@ ylabel('Probability');
 
 ________________________
 
-EXP-3:%  To verify the sampling theorem in frequency domain 
+EXP-3:
+
+
+%  To verify the sampling theorem in frequency domain 
 %definiton of variables
 %xanalog           :Given analog signal%xsampled          :Sampled version of xanalog
 %xsampled_DFT      :DFT of sampled signal   %tsamp             :sampling interval(spacing between any two samples)%xsampled_length   :no. of samples of analog signal collected
