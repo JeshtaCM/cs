@@ -256,335 +256,60 @@ ylabel('Probability');
 
 ________________________
 
-EXP-3:
+EXP-3:%  To verify the sampling theorem in frequency domain 
+%definiton of variables
+%xanalog           :Given analog signal%xsampled          :Sampled version of xanalog
+%xsampled_DFT      :DFT of sampled signal   %tsamp             :sampling interval(spacing between any two samples)%xsampled_length   :no. of samples of analog signal collected
+%xreconstructed    :sampled sequence in time domain
+%fs:samplimg frequency(samples/second)
+%t                 :time duration in which the analog signal exist (0 to 0.01(tfinal) in this program)
+%fm               :The highest frequency(700 Hz) contained in the analog signalsampling in time domain results in periodic components infrequency domain centered at nfs, where n=.... -3,-2,-1,1,2 %3,.....sampling in frequency domain can also be used to %analyze aliasing effect
 
-Time Domain
-
-clc
-close all
-
-tfinal = 0.01;
-t = 0:0.00001:tfinal;
-
-xanalog = cos(2*pi*400*t) + cos(2*pi*700*t);
-
-subplot(4,1,1);
-plot(t, xanalog , 'r-');
-xlabel("Time");
-ylabel("Amplitude");
-title("Analog signal");
-
-% Critical Sampling (fs=2fm)
-fs=1400;
-tsamp = 0:1/fs:tfinal;
-xsampled = cos(2*pi*400*tsamp) + cos(2*pi*700*tsamp);
-subplot(4,1,2);
-plot(tsamp, xsampled , 'b*-');
-xlabel("Time");
-ylabel("Amplitude");
-title("Critical Sampling(fs=2fm)");
-
-% Under Sampling (fs<2fm)
-fs=700;
-tsamp = 0:1/fs:tfinal;
-xsampled = cos(2*pi*400*tsamp) + cos(2*pi*700*tsamp);
-subplot(4,1,3);
-plot(tsamp, xsampled , 'b*-');
-xlabel("Time");
-ylabel("Amplitude");
-title("UnderSampling(fs<2fm)");
-
-% Over Sampling (fs>2fm)
-fs=2000;
-tsamp = 0:1/fs:tfinal;
-xsampled = cos(2*pi*400*tsamp) + cos(2*pi*700*tsamp);
-subplot(4,1,4);
-plot(tsamp, xsampled , 'b*-');
-xlabel("Time");
-ylabel("Amplitude");
-title("OverSampling(fs>2fm)");
-___________________________________________
-
-
-Frequency Domain
-
-clc
-close all
-
-tfinal = 0.01;
+tfinal=0.01;
 t=0:0.00001:tfinal;
+xanalog=cos(2*pi*400*t)+cos(2*pi*700*t);
+%critical sampling  fs=2fm(fm=700)
+fs=1400;%Note that samples will repeat after 13/fs,hence its %sufficient if we consider first 14 samples(0 to 13) of analog %signal (observe the figures given previously)
 
-figure;
+tsamp=0:1/fs:13/fs;
+xsampled=cos(2*pi*400*tsamp)+cos(2*pi*700*tsamp);%calculate 14 point DFT of sampled signal. abs(...) is %required because plot function displays only real values
 
-xanalog = cos(2*pi*400*t)+cos(2*pi*700*t);
-subplot(4,2,2);
-plot(t, xanalog , 'r-');
-xlabel("Time");
-ylabel("Amplitude");
-title("Analog signal");
+xsampled_DFT=abs(fft(xsampled));
+xsampled_length=0:length(xsampled_DFT)-1;
 
-x_DFT = abs(fftshift(fft(xanalog)));
-l=length(x_DFT);
-x_length = -l/2:l/2-1;
-subplot(4,2,1);
-stem(100*x_length+50,x_DFT);
-axis([-800 800 0 600]);
-xlabel("Frequency");
-ylabel("Magnitude");
-title("Analog signal in Frequency Domain")
+figure(1);subplot(6,1,1);stem(100*xsampled_length,xsampled_DFT);
+xlabel('Frequency');ylabel('Magnitude');title('Critical Sampling (fs=2fm)');
 
-% Critical Sampling (fs=2fm)
-fs=1400;
-tsamp = 0:1/fs:14/fs;
-xsampled = cos(2*pi*400*tsamp)+cos(2*pi*700*tsamp);
-xsampled_DFT = abs(fftshift(fft(xsampled)));
-xsampled_length = -length(xsampled_DFT)/2:length(xsampled_DFT)/2-1;
-subplot(4,2,3);
-stem(100*xsampled_length+50,xsampled_DFT);
-axis([-800 800 0 15])
-xlabel("Frequency");
-ylabel("Magnitude");
-title("Critical Sampling(fs=2fm)");
+xreconstructed=ifft(fft(xsampled)); %To reconstruct the signal, ifft(...) can be  used.
+subplot(6,1,2);plot(tsamp,xreconstructed,'b*-');
+xlabel('Time');ylabel('Amplitude');title('Critical Sampling (fs=2fm)');
 
-xrecon = ifft(fft(xsampled));
-subplot(4,2,4);
-plot(tsamp,xrecon);
-xlabel("Time");
-ylabel("Amplitude");
-title("Critical Sampling(fs=2fm)");
+ %Under Sampling(fs<2fm)
+fs=700;%Note that samples will repeat after 6/fs,hence its sufficientif we consider first 7 samples(0 to 6) of analog signal
+tsamp=0:1/fs:6/fs;
+xsampled=cos(2*pi*400*tsamp)+cos(2*pi*700*tsamp);
+xsampled_DFT=abs(fft(xsampled)); %calculate 7 point DFT of sampled signal.
+xsampled_length=0:length(xsampled_DFT)-1;
+subplot(6,1,3);stem(100*xsampled_length,xsampled_DFT)
+xlabel('Frequency');ylabel('Magnitude');title('Under Sampling (fs<2fm)');
 
-% Under Sampling (fs<2fm)
-fs =700;
-tsamp = 0:1/fs:6/fs;
-xsampled = cos(2*pi*400*tsamp)+cos(2*pi*700*tsamp);
-xsampled_DFT = abs(fftshift(fft(xsampled)));
-xsampled_length = -length(xsampled_DFT)/2:length(xsampled_DFT)/2-1;
-subplot(4,2,5);
-stem(100*xsampled_length+50,xsampled_DFT);
-axis([-800 800 0 15])
-xlabel("Frequency");
-ylabel("Magnitude");
-title("Under Sampling(fs<2fm)");
+xreconstructed=ifft(fft(xsampled)); %To reconstruct the signal, ifft(...) can be  used.
+subplot(6,1,4);plot(tsamp,xreconstructed,'b*-');
+xlabel('Time');ylabel('Amplitude');title('Under Sampling (fs<2fm)');
 
-xrecon = ifft(fft(xsampled));
-subplot(4,2,6);
-plot(tsamp,xrecon);
-xlabel("Time");
-ylabel("Amplitude");
-title("Under Sampling(fs<2fm)");
+%over Sampling(fs>2fm)
+fs=2000;%Note that samples will repeat after 19/fs,hence its %sufficient if we consider first 20 %samples(0 to 19) of analog %signal
+tsamp=0:1/fs:19/fs;
+xsampled=cos(2*pi*400*tsamp)+cos(2*pi*700*tsamp);%calculate 20 point DFT of sampled %signal.
+xsampled_DFT=abs(fft(xsampled));
+xsampled_length=0:length(xsampled_DFT)-1;
 
-% Over Sampling (fs>2fm)
-fs=2000;
-tsamp = 0:1/fs:20/fs;
-xsampled = cos(2*pi*400*tsamp) + cos(2*pi*700*tsamp);
-xsampled_DFT = abs(fft(xsampled));
-xsampled_length = -length(xsampled_DFT)/2:length(xsampled_DFT)/2-1;
-subplot(4,2,7);
-stem(100*xsampled_length,xsampled_DFT);
-axis([-800 800 0 15])
-xlabel("Frequency");
-ylabel("Magnitude");
-title("Over Sampling(fs>2fm)");
+subplot(6,1,5);stem(100*xsampled_length,xsampled_DFT)
+xlabel('Frequency');ylabel('Magnitude');title('Over Sampling (fs>2fm)');
 
-xrecon = ifft(fft(xsampled));
-subplot(4,2,8);
-plot(tsamp,xrecon);
-xlabel("Time");
-ylabel("Amplitude");
-title("Over Sampling(fs>2fm)");
-
-___________________________________________
-
-
-EXP-4
-
-Part 1
-
-% Script subsampling_1.m in which a subsampling is examined
-% Works with the Simulink model subsampling1.slx
-clear;
-% ------- Initializations
-fsin = 39e3;              % Sine input signal 
-fc = 40e3;                % Center frequency of the bandpass signal
-delta_f = 4e3;            % Bandwidth
-fnoise = 1e6;             % Sampling frequency for the 'Band-Limited White
-                      % Noise' block
-fs = 18e3;                % NZ = 5;
-%fs = 15e3;               % NZ = 6;            
-%fs = 14.5455e3;          % NZ = 6;
-%fs = 17.777e3;           % NZ = 5;
-
-% ------- Analog filter for the random signal
-fmin = fc - delta_f/2;    % Lower limit of the frequency band
-fmax = fc + delta_f/2;    % Upper limit
-
-nord = 6;
-dp = 1;                   % Ripple in the passband in dB
-ds = 40;                  % Attenuation in the stop band in dB
-
-[b,a] = ellip(nord, 1, ds,[fmin, fmax]*2*pi,'s');  % Elliptical filter
-% Frequency response
-[H,w] = freqs(b,a);
-figure(1),     clf;
-plot(w/(2*pi), 20*log10(abs(H)),'k-','LineWidth',1);
-title('Amplitude response of the analog filter');
-xlabel('Hz');    ylabel('dB');     grid on;
-
-% ------- Calling the simulation
-Tfinal = 0.5;
-sim('subsampling1',[0,Tfinal]);
-ys = y.Data;
-t = y.Time;
-
-figure(2),    clf;
-stairs(t, ys,'k-','LineWidth',1);
-title('Signal after the ''Upsample'' block (excerpt)');
-xlabel('s');     grid on;
-La = axis;   axis([0.44, 0.441, La(3:4)]);
-
-% ------- Power spectral density after the upsample
-[Pyy,F] = pwelch(ys,hann(4096),[256],4096,fs*10);
-
-figure(3),    clf;
-plot(F, 10*log10(Pyy),'k-','LineWidth',1);
-title(['Power spectral density of the subsampled signal'...
-    ' over several periods']);
-ylabel('dBW/Hz');      grid on;
-xlabel(['Frequency in Hz (fs = ',num2str(fs),' Hz)']);   
-La = axis;    axis([0, max(F), La(3:4)]);
-
-____________________________________________
-
-
-Part 2:
-
-% Script subsampling_2.m in which a subsampling is examined
-% Works with the Simulink model subsampling2.slx
-% The bandpass signal is reconstructed from the subsampled signal
-
-clear;
-% ------- Initializations
-fsin = 39e3;              % Sine input signal 
-fc = 40e3;                % Center frequency of the bandpass signal
-delta_f = 4e3;            % Bandwidth
-fnoise = 1e6;             % Sampling frequency for the 'Band-Limited White
-                      % Noise' block
-fs = 18e3;                % NZ = 5;
-
-% ------- Analog filter for the random signal
-fmin = fc - delta_f/2;    % Lower limit of the frequency band
-fmax = fc + delta_f/2;    % Upper limit
-
-nord = 6;
-dp = 1;                   % Ripple in the passband in dB
-ds = 40;                  % Attenuation in the stop band in dB
-
-[b,a] = ellip(nord, 1, ds,[fmin, fmax]*2*pi,'s');  % Elliptical filter 
-% Frequency response
-[H,w] = freqs(b,a);
-figure(1),     clf;
-plot(w/(2*pi), 20*log10(abs(H)),'k-','LineWidth',1);
-title('Amplitude response of the analog filter');
-xlabel('Hz');    ylabel('dB');     grid on;
-
-% ------- Calling the simulation
-Tfinal = 1;
-sim('subsampling2',[0,Tfinal]);
-ys = y.Data;
-t = y.Time;
-ys1 = y1.Data;
-t1 = y1.Time;
-
-figure(2),    clf;
-stairs(t, ys,'k-','LineWidth',1);
-title('Signal after the ''Upsample'' block (excerpt)');
-xlabel('s');     grid on;
-La = axis;   axis([0.44, 0.441, La(3:4)]);
-
-% ------- Power spectral density after the upsample
-[Pyy,F] = pwelch(ys,hann(4096),[256],4096,fs*10);
-
-figure(3),    clf;
-plot(F, 10*log10(Pyy),'k-','LineWidth',1);
-title(['Power spectral density of the subsampled signal'...
-    ' over several periods']);
-ylabel('dBW/Hz');      grid on;
-xlabel(['Frequency in Hz (fs = ',num2str(fs),' Hz)']);   
-La = axis;    axis([0, max(F), La(3:4)]);
-
-figure(4),    clf;
-stairs(t1, y1.Data,'k-','LineWidth',1);
-La = axis;   axis([0.44, 0.442, La(3:4)]);
-title('Bandpass signal and reconstructed bandpass signal (excerpt)');
-xlabel('s');   grid on;
-
-____________________________________________
-
-
-Part 3:
-
-% Script subsampling_3m in which a subsampling and reconstruction 
-% is examined.
-% Works with the Simulink model subsampling3.slx
-% The bandpass signal is reconstructed from the subsampled signal
-% with two stages
-
-clear;
-% ------- Initialisierungen
-fsin = 0.98e6;            % Sine input signal 
-fc = 1e6;                 % Center frequency of the bandpass signal
-delta_f = 80e3;           % Bandwidth
-fnoise = 3e6;             % Sampling frequency for the 'Band-Limited White
-                      % Noise' block
-fs = 450e3;               % NZ = 5
-
-% ------- Analog filter for the random signal
-fmin = fc - delta_f/2;    % Lower limit of the frequency band
-fmax = fc + delta_f/2;    % Upper limit
-
-nord = 8;
-dp = 1;                   % Ripple in the passband in dB
-ds = 30;                  % Attenuation in the stop band in dB
-
-[b,a] = ellip(nord, 1, ds,[fmin, fmax]*2*pi,'s');  % Elliptical filter 
-% Frequency response
-[H,w] = freqs(b,a);
-figure(1),     clf;
-plot(w/(2*pi), 20*log10(abs(H)),'k-','LineWidth',1);
-title('Amplitudengang des Analogfilters');
-xlabel('Hz');    ylabel('dB');     grid on;
-axis tight;
-
-% ------- Calling the simulation
-Tfinal = 0.05;
-sim('subsampling3',[0,Tfinal]);
-ys = y.Data;
-t = y.Time;
-ys1 = y1.Data;
-t1 = y1.Time;
-
-figure(2),    clf;
-stairs(t, ys,'k-','LineWidth',1);
-title('Signal after the ''Upsample'' block with facto 10 (excerpt)');
-xlabel('s');     grid on;
-La = axis;   axis([0.026, 0.02605, La(3:4)]);
-
-% ------- Power spectral density after the upsample with facto 10
-[Pyy,F] = pwelch(ys,hann(4096),[256],4096,fs*10);
-
-figure(3),    clf;
-plot(F, 10*log10(Pyy),'k-','LineWidth',1);
-title(['Power spectral density of the subsampled signal'...
-    ' over several periods']);
-ylabel('dBW/Hz');      grid on;
-xlabel(['Frequency in Hz (fs = ',num2str(fs),' Hz)']);   
-La = axis;    axis([0, max(F), La(3:4)]);
-
-figure(4),    clf;
-stairs(t1, y1.Data,'k-','LineWidth',1);
-La = axis;   axis([0.026, 0.02605, La(3:4)]);
-title('Bandpass signal and reconstructed bandpass signal (excerpt)');
-xlabel('s');   grid on;
+xreconstructed=ifft(fft(xsampled));
+subplot(6,1,6);plot(tsamp,xreconstructed,'b*-');
+xlabel('Time');ylabel('Amplitude');title('Over Sampling (fs>2fm)');
 
 _________________________________________________
 
@@ -769,6 +494,73 @@ end
 figure(1);
 sfig1=plot(t,xsig,'k',t,S_DMout(1:Lsig),'b');
 set(sfig1,'LineWidth',2);
+
+ADM SABA MAMS CODE
+
+close all
+clear all
+clc
+td = 0.01;
+ts = 0.02;
+t = 0:td:5;
+sig_in= 8*sin(2*pi*t);
+Delta = 0.1;
+figure(1)
+plot(t,sig_in)
+
+if (round(ts/td) >= 2)
+ Nfac = round(ts/td); %Nearest integer
+ xsig = downsample(sig_in,Nfac);
+ Lxsig = length(xsig);
+ Lsig_in = length(sig_in);
+ 
+ ADMout = zeros(Lsig_in); %Initialising output
+ 
+ cnt1 = 0; %Counters for no. of previous consecutively increasing 
+ cnt2 = 0; %steps
+ sum = 0;
+ for i=1:Lxsig
+ 
+ if (xsig(i) == sum)
+ elseif (xsig(i) > sum)
+ if (cnt1 < 2)
+ sum = sum + Delta; %Step up by Delta, same as in DM
+ elseif (cnt1 == 2)
+ sum = sum + 2*Delta; %Double the step size after
+ %first two increase
+ elseif (cnt1 == 3)
+ sum = sum + 4*Delta; %Double step size
+ else
+ sum = sum + 8*Delta; %Still double and then stop
+ %doubling thereon
+ end
+ if (sum < xsig(i))
+ cnt1 = cnt1 + 1;
+ else
+ cnt1 = 0;
+ end
+ else
+ if (cnt2 < 2)
+ sum = sum - Delta;
+ elseif (cnt2 == 2)
+ sum = sum - 2*Delta;
+ elseif (cnt2 == 3)
+ sum = sum - 4*Delta;
+ else
+ sum = sum - 8*Delta;
+ end
+ if (sum > xsig(i))
+ cnt2 = cnt2 + 1;
+ else
+ cnt2 = 0;
+ end
+ end
+ ADMout(((i-1)*Nfac + 1):(i*Nfac)) = sum;
+ end
+end
+figure(2)
+ plot(t,ADMout);
+
 ________________________________________________  
 
 EXP 7: SIGMA DELTA MODULATION
